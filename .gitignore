@@ -9,6 +9,10 @@ obj/
 *.user
 *.suo
 
+# Workshop upload staging (rebuilt by Steam/publish.ps1)
+Steam/content/
+Steam/base.tmp.vdf
+
 # Logs (the publicizer writes one when asked to)
 logs/
 *.log

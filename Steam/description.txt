@@ -1,0 +1,17 @@
+Colors every machine in your factory from red to green by how efficiently it is running.
+
+[b]How it works[/b]
+[list]
+[*] Each machine is tinted by its efficiency, rounded to the nearest 25%: red (0%), orange, yellow, light green, green (100%).
+[*] It uses the same measurement as the game's own efficiency panel in the building side panel, and a machine that stops receiving items gets redder.
+[*] Belts, splitters, mergers, lifts and belt ports are not tinted intentionally, only machines.
+[*] The tint respects the layer toggle (V): machines on hidden layers are not tinted.
+[/list]
+
+[b]Toggle[/b]
+[list]
+[*] A button in the Visualizations panel, directly under the machine conflict button.
+[*] The M key (changeable in the keybinding settings).
+[/list]
+
+[b]Requires[/b] Shapez Shifter.

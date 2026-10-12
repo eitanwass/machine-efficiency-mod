@@ -1,0 +1,11 @@
+"workshopitem"
+{
+	"appid"				"2162800"
+	"publishedfileid"	"3818677642"
+	"contentfolder"		"{{CONTENT_PATH}}"
+	"previewfile"		"{{PREVIEW_IMAGE}}"
+	"visibility"		"{{VISIBILITY}}"
+	"title"				"Machine Efficiency"
+	"description"		"{{DESCRIPTION}}"
+	"changenote"		"{{CHANGE_NOTE}}"
+}
