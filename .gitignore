@@ -1,0 +1,14 @@
+# Build output
+bin/
+obj/
+
+# IDE and user-specific files
+.vs/
+.idea/
+.vscode/
+*.user
+*.suo
+
+# Logs (the publicizer writes one when asked to)
+logs/
+*.log

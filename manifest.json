@@ -1,0 +1,18 @@
+{
+  "Version": "0.1.0",
+  "Description": "Colors machines from red to green by their efficiency",
+  "Author": "Ethan",
+  "SavedModVersionCompabilityRangeWithSelf": "*",
+  "GameVersionSupportRange": "*",
+  "AffectsSaveGames": false,
+  "DisablesAchievements": false,
+  "Conflicts": [],
+  "Assemblies": ["MachineEfficiency.dll"],
+  "Dependencies": [
+    {
+      "ModId": "steam:3542611357",
+      "ModTitle": "Shapez Shifter",
+      "Version": "^1.2.0"
+    }
+  ]
+}

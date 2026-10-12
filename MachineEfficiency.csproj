@@ -1,0 +1,85 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <AssemblyName>MachineEfficiency</AssemblyName>
+        <LangVersion>9</LangVersion>
+
+        <!-- Krafs.Publicizer and ShapezShifter both define IgnoresAccessChecksToAttribute; harmless. -->
+        <NoWarn>$(NoWarn);CS0436</NoWarn>
+
+        <!-- Keep local paths (including the user name) out of the shipped DLL's debug information. -->
+        <PathMap>$(MSBuildProjectDirectory)=.</PathMap>
+    </PropertyGroup>
+
+    <!--
+        Where the game lives. Launching the game once with its modding-env-vars flag sets SPZ2_PATH, SPZ2_PERSISTENT
+        and SPZ2_SHIFTER for you, and so does passing them as -p:SPZ2_PATH=... on the command line. When they are
+        missing we derive what we can from SPZ2_PATH (the game's Managed folder), and otherwise explain what to do.
+    -->
+    <PropertyGroup>
+        <SPZ2_PATH Condition="'$(SPZ2_PATH)' == '' And Exists('$(MSBuildProgramFiles32)\Steam\steamapps\common\shapez 2\shapez 2_Data\Managed')">$(MSBuildProgramFiles32)\Steam\steamapps\common\shapez 2\shapez 2_Data\Managed</SPZ2_PATH>
+
+        <!-- Unity's persistent data folder, where the game loads mods from. -->
+        <SPZ2_PERSISTENT Condition="'$(SPZ2_PERSISTENT)' == ''">$(UserProfile)\AppData\LocalLow\tobspr Games\shapez 2</SPZ2_PERSISTENT>
+
+        <!-- Workshop content sits in the same Steam library as the game: steamapps\workshop\content\2162800\<id>. -->
+        <WorkshopRoot Condition="'$(SPZ2_PATH)' != ''">$([System.IO.Path]::GetFullPath('$(SPZ2_PATH)\..\..\..\..\workshop\content\2162800'))</WorkshopRoot>
+        <SPZ2_SHIFTER Condition="'$(SPZ2_SHIFTER)' == '' And '$(WorkshopRoot)' != ''">$(WorkshopRoot)\3542611357\ShapezShifter.dll</SPZ2_SHIFTER>
+
+        <!-- Building installs straight into the game's mods folder. -->
+        <OutputPath>$(SPZ2_PERSISTENT)\mods\MachineEfficiency</OutputPath>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Update="manifest.json" CopyToOutputDirectory="PreserveNewest"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Reference Include="ShapezShifter" HintPath="$(SPZ2_SHIFTER)" Private="False"/>
+        <Reference Include="MonoMod.RuntimeDetour"
+                   HintPath="$(WorkshopRoot)\3542712030\MonoMod.RuntimeDetour.dll" Private="False"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <GameAssembly Include="Core"/>
+        <GameAssembly Include="Core.Localization"/>
+        <GameAssembly Include="Game.Content.Features"/>
+        <GameAssembly Include="Game.Core"/>
+        <GameAssembly Include="Game.Core.Content"/>
+        <GameAssembly Include="Game.Core.Coordinates"/>
+        <GameAssembly Include="Game.Core.Map"/>
+        <GameAssembly Include="Game.Core.Map.Layout"/>
+        <GameAssembly Include="Game.Core.Map.Model"/>
+        <GameAssembly Include="Game.Core.Map.Simulation"/>
+        <GameAssembly Include="Game.Core.Modding"/>
+        <GameAssembly Include="Game.Core.Rendering"/>
+        <GameAssembly Include="Game.Core.Simulation"/>
+        <GameAssembly Include="Game.Orchestration"/>
+        <GameAssembly Include="SPZGameAssembly"/>
+        <GameAssembly Include="Unity.Core"/>
+        <GameAssembly Include="Unity.Mathematics"/>
+        <GameAssembly Include="UnityEngine.CoreModule"/>
+        <GameAssembly Include="UnityEngine.UI"/>
+        <Reference Include="@(GameAssembly->'$(SPZ2_PATH)\%(Identity).dll')" Private="False"/>
+    </ItemGroup>
+
+    <!-- Lets us touch members the game keeps private (the orchestrator's theme, speeds, input manager, ...). -->
+    <ItemGroup>
+        <Publicize Include="Game.Orchestration" IncludeVirtualMembers="false"/>
+        <Publicize Include="SPZGameAssembly" IncludeVirtualMembers="false"/>
+        <PackageReference Include="Krafs.Publicizer" Version="2.3.0" PrivateAssets="all"/>
+    </ItemGroup>
+
+    <!-- Fail early with something actionable instead of dozens of "type not found" compiler errors. -->
+    <Target Name="CheckGameEnvironment" BeforeTargets="ResolveAssemblyReferences;CoreCompile">
+        <Error Condition="'$(SPZ2_PATH)' == '' Or !Exists('$(SPZ2_PATH)\SPZGameAssembly.dll')"
+               Text="Cannot find the game's assemblies (SPZ2_PATH = '$(SPZ2_PATH)'). Launch Shapez 2 once with its modding-env-vars launch option, or build with -p:SPZ2_PATH=&lt;game folder&gt;\shapez 2_Data\Managed."/>
+        <Error Condition="!Exists('$(SPZ2_SHIFTER)')"
+               Text="Cannot find ShapezShifter.dll (SPZ2_SHIFTER = '$(SPZ2_SHIFTER)'). Subscribe to Shapez Shifter on the Steam Workshop, or build with -p:SPZ2_SHIFTER=&lt;path to ShapezShifter.dll&gt;."/>
+        <Error Condition="!Exists('$(WorkshopRoot)\3542712030\MonoMod.RuntimeDetour.dll')"
+               Text="Cannot find MonoMod.RuntimeDetour.dll under '$(WorkshopRoot)\3542712030'. It is installed with Shapez Shifter from the Steam Workshop."/>
+    </Target>
+
+</Project>
